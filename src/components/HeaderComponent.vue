@@ -11,15 +11,66 @@
           <a class="header__nav-link">Слухи</a>
           <a class="header__nav-link">Популярное</a>
           <a class="header__nav-link">Статистика</a>
+          <router-link to="/createpost" class="header__nav-link" v-if="checkLogin.userInfo"
+            >Создать статью
+          </router-link>
         </nav>
-        <div class="header__buttons">
-          <router-link to="/login" class="header__buttons-login">Логин</router-link>
-          <router-link to="/register" class="header__buttons-register">Регистрация</router-link>
+        <div class="header__buttons" v-if="!checkLogin.userInfo">
+          <router-link to="/login">
+            <Button label="Логин" rounded />
+          </router-link>
+          <router-link to="/register">
+            <Button label="Регистрация" severity="secondary" rounded />
+          </router-link>
         </div>
+        <div
+          class="header__logged"
+          v-if="checkLogin.userInfo"
+          :class="{ islogged: checkLogin.userInfo }"
+        >
+          <Avatar
+            v-if="
+              checkLogin.userInfo.fullName &&
+              checkLogin.userInfo.fullName.length > 0 &&
+              !checkLogin.userInfo.avatarUrl
+            "
+            :label="checkLogin.userInfo.fullName[0]"
+            class="mr-2"
+            size="large"
+            style="background-color: #2196f3; color: #ffffff"
+            shape="circle"
+          />
+          <Avatar
+            v-if="
+              checkLogin.userInfo.fullName &&
+              checkLogin.userInfo.fullName.length > 0 &&
+              checkLogin.userInfo.avatarUrl
+            "
+            :image="checkLogin.userInfo.avatarUrl"
+            class="mr-2"
+            size="large"
+            shape="circle"
+          />
+          <p class="header__logged-name">{{ checkLogin.userInfo.fullName }}</p>
+        </div>
+        <Button label="Выйти" severity="danger" @click="logout" v-if="checkLogin.userInfo" />
       </div>
     </div>
   </header>
 </template>
+
+<script setup>
+import Button from 'primevue/button'
+import { useLoginStore } from '../stores/login'
+import Avatar from 'primevue/avatar'
+
+const checkLogin = useLoginStore()
+
+const logout = () => {
+  window.localStorage.clear()
+  window.location.assign('/')
+}
+</script>
 
 <style lang="scss" scoped>
 .header {
@@ -69,34 +120,14 @@
     display: flex;
     align-items: center;
     gap: 14px;
+  }
 
-    &-login,
-    &-register {
-      padding: 8px 24px;
-      color: #ffffff;
-      display: block;
-      background: #3182ce;
-      border-radius: 12px;
-    }
+  &__logged {
+    display: flex;
+    gap: 8px;
 
-    &-login {
-      background: none;
-      color: #1a202c;
-      border: 1px solid #3182ce;
-      transition: all 250ms ease-in-out;
-
-      &:hover {
-        background: #3182ce;
-        color: #ffffff;
-      }
-    }
-
-    &-register {
-      transition: all 250ms ease-in-out;
-
-      &:hover {
-        background: #2c5282;
-      }
+    &.islogged {
+      margin-right: 14px;
     }
   }
 }

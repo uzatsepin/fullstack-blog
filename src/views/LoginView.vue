@@ -19,7 +19,7 @@
         <span class="p-inputgroup-addon">
           <i class="pi pi-lock-open"></i>
         </span>
-        <Password v-model="userInfo.password" toggleMask />
+        <Password v-model="userInfo.password" toggleMask placeholder="******" />
       </div>
       <Button
         type="button"
@@ -38,6 +38,7 @@ import Button from 'primevue/button'
 import Message from 'primevue/message'
 import { ref } from 'vue'
 import { useLoginStore } from '../stores/login'
+import router from '../router'
 
 const userInfo = ref({
   email: '',
@@ -45,18 +46,28 @@ const userInfo = ref({
 })
 const loginStore = useLoginStore()
 const login = async () => {
-  await loginStore.login({
-    email: userInfo.value.email,
-    password: userInfo.value.password
-  })
+  try {
+    await loginStore.login({
+      email: userInfo.value.email,
+      password: userInfo.value.password
+    })
+    setTimeout(() => {
+      window.location.assign('/')
+    }, 3000)
+  } catch (err) {
+    console.log(err)
+  }
 }
 </script>
 <style lang="scss" scoped>
 .Login {
-  max-width: 500px;
+  max-width: 400px;
   margin: 36px auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  border: 1px solid #d3d3d3;
+  padding: 16px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 </style>

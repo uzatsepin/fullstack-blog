@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
-import { API_URL } from '../api'
+import axios from '../axios.js'
 import { ref } from 'vue'
 
 export const useLoginStore = defineStore('login', () => {
@@ -12,22 +11,19 @@ export const useLoginStore = defineStore('login', () => {
   const errorMessage = ref('')
   const successMessage = ref('')
   const isLoading = ref(false)
+
+  const userInfo = ref({})
   const login = async (payload) => {
     try {
       isLoading.value = true
-      const response = await axios.post(`${API_URL}:4444/auth/login`, {
+      const response = await axios.post('/auth/login', {
         ...payload
       })
       isLoading.value = false
       if (response.status === 200) {
         userData.value.token = response.data.token
         successMessage.value = 'Вы успешно авторизировались'
-        localStorage.setItem(
-          'userTokens',
-          JSON.stringify({
-            token: response.data.token
-          })
-        )
+        localStorage.setItem('userToken', response.data.token)
       }
     } catch (err) {
       console.log(err.response)
@@ -35,5 +31,16 @@ export const useLoginStore = defineStore('login', () => {
       isLoading.value = false
     }
   }
-  return { login, userData, errorMessage, isLoading, successMessage }
+  const checkAuth = async () => {
+    try {
+      const response = await axios.get('/auth/me')
+
+      if (response.status === 200) {
+        userInfo.value = response.data
+      }
+    } catch (error) {
+      userInfo.value = ''
+    }
+  }
+  return { login, checkAuth, userData, errorMessage, isLoading, successMessage, userInfo }
 })

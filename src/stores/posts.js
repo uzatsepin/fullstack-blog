@@ -1,19 +1,36 @@
-import { defineStore } from 'pinia'
-import axios from 'axios'
-import { API_URL } from '../api'
+import { ref } from 'vue'
+import axios from '../axios.js'
 
-export const usePostsStore = defineStore('posts', {
-  state: () => ({
-    allPosts: []
-  }),
-  actions: {
-    async fetchPosts() {
-      try {
-        const response = await axios.get(`${API_URL}:4444/posts`)
-        this.allPosts = response.data
-      } catch (err) {
-        console.log(err)
-      }
+export function usePostsStore() {
+  const allPosts = ref([])
+  const isLoading = ref(false)
+  const postPage = ref({})
+
+  async function fetchPosts() {
+    try {
+      isLoading.value = true
+      const response = await axios.get('/posts')
+      allPosts.value = response.data
+      isLoading.value = false
+    } catch (err) {
+      console.log(err)
     }
   }
-})
+
+  async function fetchOnePost(id) {
+    try {
+      isLoading.value = true
+      const response = await axios.get(`/posts/${id}`)
+      postPage.value = response.data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  return {
+    allPosts,
+    fetchPosts,
+    fetchOnePost,
+    postPage
+  }
+}
